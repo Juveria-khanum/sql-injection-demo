@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Secure Login (SQL Injection Safe)</title>
+    <title>Insecure Login (SQL Injection Vulnerable)</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to right, #f0f2f5, #dce3ea);
+            background: linear-gradient(to right, #f8f9fa, #e0e0e0);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,7 +17,7 @@
             background: white;
             padding: 2rem 3rem;
             border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
             text-align: center;
             width: 100%;
             max-width: 400px;
@@ -25,7 +25,7 @@
 
         h2 {
             margin-bottom: 1rem;
-            color: #28a745;
+            color: #dc3545;
         }
 
         label {
@@ -43,7 +43,7 @@
         }
 
         button {
-            background: #28a745;
+            background: #dc3545;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -53,7 +53,7 @@
         }
 
         button:hover {
-            background: #218838;
+            background: #bd2130;
         }
 
         .message {
@@ -72,7 +72,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Secure Login</h2>
+        <h2>Insecure Login</h2>
         <form method="GET" action="">
             <label for="username">Username:</label>
             <input type="text" name="username" id="username" required>
@@ -87,13 +87,9 @@
                 die("<div class='message fail'>Connection failed: " . $conn->connect_error . "</div>");
             }
 
-            $username = $_GET['username'];
-
-            // Secure version using prepared statements
-            $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $username = $_GET['username']; // Unsafe input
+            $sql = "SELECT * FROM users WHERE username = '$username'";
+            $result = $conn->query($sql);
 
             if ($result && $result->num_rows > 0) {
                 echo "<div class='message success'>✅ User exists!</div>";
@@ -101,7 +97,6 @@
                 echo "<div class='message fail'>❌ User not found.</div>";
             }
 
-            $stmt->close();
             $conn->close();
         }
         ?>
